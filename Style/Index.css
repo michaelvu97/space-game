@@ -1,0 +1,15 @@
+body {
+    margin: 0px;
+}
+
+.game-container {
+    background-color: #fff;
+}
+
+canvas {
+    background-color:#000;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+}
