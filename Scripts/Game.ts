@@ -139,7 +139,7 @@ class Hitbox extends Point implements IIntersectable {
     /**
      * IIntersectable implementation, checks if a point is inside the rectangle.
      */
-    GetIntersection(point: Point) {
+    GetIntersection = (point: Point): boolean => {
 
         return point.x >= this.GetLeft()
             && point.x <= this.GetRight()
@@ -198,7 +198,7 @@ class CircleHitbox extends Point implements IIntersectable {
     /**
      * IIntersectable implementation.
      */
-    GetIntersection(point: Point) {
+    GetIntersection = (point: Point) => {
         return this.Subtract(point).Magnitude() <= this._radius;
     }
 
@@ -206,6 +206,10 @@ class CircleHitbox extends Point implements IIntersectable {
 
 interface IClickable {
     OnClick(event: Event): any;
+}
+
+interface IDrawable {
+    Draw(g: GraphicsAdapter): void;
 }
 
 /**
@@ -220,8 +224,141 @@ enum GameState {
  * A single element on the screen.
  */
 abstract class GameElement {
-    hitbox: IClickable;
-    
+    hitbox: IIntersectable;
+
+    constructor (hitbox: IIntersectable) {
+        this.hitbox = hitbox;
+    }
+}
+
+class Color {
+    r: number;
+    g: number;
+    b: number;
+
+    constructor (r: number, g: number, b: number) {
+        /** 
+         * Value normalization.
+         */ 
+        while (r > 255)
+            r -= 256;
+        while (r < 0)
+            r += 256;
+        while (g > 255)
+            g -= 256;
+        while (g < 0)
+            g += 256;
+        while (b > 256)
+            b -= 256;
+        while (b < 0)
+            b += 256;
+
+        this.r = r;
+        this.g = g;
+        this.b = b;
+    }
+
+    ToHexString = (): string => {
+
+        /** 
+         * Convert individual colors to hex strings.
+         */ 
+        var red = this.r.toString(16);
+        var green = this.g.toString(16);
+        var blue = this.b.toString(16);
+
+        /** 
+         * Pad with zeroes.
+         */
+        while (red.length < 2)
+            red = '0' + red;
+
+        while (green.length < 2)
+            green = '0' + green;
+
+        while (blue.length < 2)
+            blue = '0' + blue;
+
+        return '#' + red + green + blue;
+    }
+
+}
+
+/**
+ * Static helper functions for drawing.
+ */
+class GraphicsAdapter {
+
+    /** 
+     * Moves the path cursor to a point.
+     */
+    static MoveTo (context: CanvasRenderingContext2D, point: Point) {
+        context.moveTo(point.x, point.y);
+    }
+
+    /** 
+     * Adds a circle to the path.
+     */
+    static CirclePath (context: CanvasRenderingContext2D, centre: Point, 
+            radius: number): void {
+        context.arc(centre.x, centre.y, radius, 0, 360);
+    }
+
+    /** 
+     * Sets the color to fill the current path with.
+     */ 
+    static FillStyle (context: CanvasRenderingContext2D, color: Color) {
+        context.fillStyle = color.ToHexString();
+    }
+
+}
+
+/**
+ * Class for a single planet.
+ */
+class Planet extends GameElement implements IClickable, IDrawable {
+
+    static DEFAULT_RADIUS = 100;
+
+    name: string;
+    color: Color;
+
+    constructor (x: number, y: number, radius: number = Planet.DEFAULT_RADIUS, 
+            name: string = "", color: Color = new Color(0,0,255)) {
+
+        super(new CircleHitbox(x, y, radius));
+
+        this.name = name;
+
+        this.color = color;
+
+    }
+
+    /**
+     * IClickable implementation.
+     * TODO make this actually do something.
+     */
+    OnClick = (event: Event):void => {
+        console.log(this.name);
+    }
+
+    /** 
+     * IDrawable implementation.
+     */
+    Draw = (context: CanvasRenderingContext2D): void => {
+
+        console.log('drawing' + this.name);
+
+        GraphicsAdapter.FillStyle(context, this.color);
+
+        context.beginPath();
+
+        var hitBox = this.hitbox as CircleHitbox;
+
+        GraphicsAdapter.CirclePath(context, hitBox, hitBox.GetRadius());
+
+        context.fill();
+    }
 }
 
 /** 
@@ -289,7 +426,25 @@ class Game {
 
         // TODO we have the relative point on the canvas, decide what to do with
         // it.
+        var planets: Planet[] = [];
+        planets.push(new Planet(100, 100, 100, "A"));
+        planets.push(new Planet(200, 200, 150, "B"));
 
+        var clickAccepted = false;
+
+        planets.forEach(planet => {
+
+            if (    !clickAccepted
+                    && planet.hitbox.GetIntersection(clickPosition)) {
+
+                planet.OnClick(null);
+                clickAccepted = true;
+
+            }
+
+            planet.Draw(this.context);
+
+        });
 
     }
 }
