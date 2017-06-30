@@ -29,6 +29,10 @@ class Point {
         return Point.Dot(this, b);
     }
 
+    Magnitude = (): number => {
+        return Point.Magnitude(this);
+    }
+
     static Add (a: Point, b: Point): Point {
         return new Point(a.x + b.x, a.y + b.y);
     }
@@ -45,6 +49,163 @@ class Point {
         return a.x * b.x + a.y * b.y;
     }
 
+    static Magnitude(point: Point): number {
+        return Math.sqrt(point.Dot(point));
+    }
+
+}
+
+/**
+ * Implementable for any object that can be intersected.
+ */
+interface IIntersectable {
+    GetIntersection(point:Point):boolean;
+}
+
+/**
+ * A class representing a rectangular hitbox.
+
+ * The extension from a point is the centre of the hitbox (ie. (x,y) is the 
+ * centre).
+ */
+class Hitbox extends Point implements IIntersectable {
+
+    private _width:  number;
+    private _height: number;
+
+    constructor (x: number, y: number, width: number, height: number) {
+
+        super(x, y);
+
+        this._width  = width;
+        this._height = height;
+
+    }
+
+    /**
+     * Accessors
+     */
+    GetHeight = (): number => {
+        return this._height;
+    }
+
+    GetWidth = (): number => {
+        return this._width;
+    }
+
+    GetLeft = (): number => {
+        return this.x - (this._width / 2);
+    }
+
+    GetRight = (): number => {
+        return this.x + (this._width / 2);
+    }
+
+    GetTop = (): number => {
+        return this.y - (this._height / 2);
+    }
+
+    GetBottom = (): number => {
+        return this.x + (this._height / 2);
+    }
+
+    GetTopLeft = (): Point => {
+        return new Point(this.GetLeft(), this.GetTop());
+    }
+
+    GetTopRight = (): Point => {
+        return new Point(this.GetRight(), this.GetTop());
+    }
+
+    GetBottomRight = (): Point => {
+        return new Point(this.GetRight(), this.GetBottom());
+    }
+
+    GetBottomLeft = (): Point => {
+        return new Point(this.GetLeft(), this.GetBottom());
+    }
+
+    /**
+     * Mutators
+     */
+    SetHeight = (height: number): void => {
+        this._height = height;
+    }
+
+    SetWidth = (width: number): void => {
+        this._width = width;
+    }
+
+    /**
+     * IIntersectable implementation, checks if a point is inside the rectangle.
+     */
+    GetIntersection(point: Point) {
+
+        return point.x >= this.GetLeft()
+            && point.x <= this.GetRight()
+            && point.y >= this.GetTop()
+            && point.y <= this.GetBottom()
+
+    }
+
+}
+
+/**
+ * Circular hitbox.
+ */
+class CircleHitbox extends Point implements IIntersectable {
+
+    private _radius: number;
+
+    constructor (x: number, y: number, radius: number) {
+
+        super(x, y);
+
+        if (radius < 0) {
+            console.warn("Negative radius supplied");
+            radius *= -1;
+        }
+
+        this._radius = radius;
+
+    }
+
+    /**
+     * Accessors
+     */
+
+    GetRadius = (): number => {
+        return this._radius;
+    }
+
+    /**
+     * Mutators
+     */
+
+    /**
+     * Takes the absolute value of the supplied radius, just in case.
+     */ 
+    SetRadius = (radius: number): void => {
+
+        if (radius < 0) {
+            console.warn("Negative radius supplied");
+            radius *= -1;
+        }
+
+        this._radius = radius;
+    }
+
+    /**
+     * IIntersectable implementation.
+     */
+    GetIntersection(point: Point) {
+        return this.Subtract(point).Magnitude() <= this._radius;
+    }
+
+}
+
+interface IClickable {
+    OnClick(event: Event): any;
 }
 
 /**
@@ -58,8 +219,9 @@ enum GameState {
 /**
  * A single element on the screen.
  */
-class GameElement {
-    center: Point;
+abstract class GameElement {
+    hitbox: IClickable;
+    
 }
 
 /** 
@@ -127,6 +289,7 @@ class Game {
 
         // TODO we have the relative point on the canvas, decide what to do with
         // it.
+
 
     }
 }
