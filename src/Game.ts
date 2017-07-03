@@ -1,6 +1,7 @@
-import { IIntersectable } from "./Interfaces";
 import { Point } from "./Point";
 import { Planet } from "./Planet";
+import { Color } from "./Color";
+import { GameObject } from "./GameObject"
 import * as $ from "jquery";
 
 /**
@@ -19,17 +20,33 @@ class Game {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
 
+    planets: Array<GameObject>;
+
     constructor (gameElementId = "game") {
         
         var element = document.getElementById(gameElementId);
         this.canvas = element as HTMLCanvasElement;
         this.context = this.canvas.getContext("2d");
+
+        this.planets = [];
+
     }
 
     // Start the game
     Initialize = (): void => {
         $(this.canvas).click(event => {this.ClickHandler(event)});
         $(this.canvas).contextmenu(event => {this.ClickHandler(event)});
+
+
+        // Testing
+        this.planets.push(new Planet(100, 100, 50, "planetA", 
+                new Color(0,0,255))
+        );
+
+        this.planets.push(new Planet(400, 400, 75, "planetB",
+                new Color(255,0,255))
+        );
+
     }
 
     /**
@@ -76,26 +93,33 @@ class Game {
 
         // TODO we have the relative point on the canvas, decide what to do with
         // it.
-        var planets: Planet[] = [];
-        planets.push(new Planet(100, 100, 100, "A"));
-        planets.push(new Planet(200, 200, 150, "B"));
-
         var clickAccepted = false;
-
-        planets.forEach(planet => {
+        this.planets.forEach(planet => {
 
             if (    !clickAccepted
-                    && planet.hitbox.GetIntersection(clickPosition)) {
+                    && planet.GetIntersection(clickPosition)
+                    && planet.canClick) {
 
                 planet.OnClick(null);
                 clickAccepted = true;
 
             }
 
-            planet.Draw(this.context);
-
         });
 
+    }
+
+    /**
+     * Updates the canvas and draws all the onscreen elements.
+     */
+    UpdateCanvas = (): void => {
+
+        // Clear screen
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.planets.forEach(planet => {
+            planet.Draw(this.context);
+        });
     }
 }
 
@@ -106,6 +130,9 @@ $(() => {
     // Create a new game object.
     var game = new Game();
     game.Initialize();
+
+    // Set screen update to a timer for now.
+    setTimeout(game.UpdateCanvas, 16.6);
 });
 
 function NotNullOrUndefined (obj: Object): boolean {

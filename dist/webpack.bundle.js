@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -111,150 +111,10 @@ class Point {
     }
 }
 exports.Point = Point;
-//# sourceMappingURL=Point.js.map
+
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Point_1 = __webpack_require__(0);
-const Planet_1 = __webpack_require__(2);
-const $ = __webpack_require__(7);
-/**
- * Enumeration for which state the game is in.
- */
-var GameState;
-(function (GameState) {
-    GameState[GameState["MainMenu"] = 1] = "MainMenu";
-    GameState[GameState["MoveSelection"] = 2] = "MoveSelection";
-})(GameState || (GameState = {}));
-/**
- * Main Game controller
- */
-class Game {
-    constructor(gameElementId = "game") {
-        // Start the game
-        this.Initialize = () => {
-            $(this.canvas).click(event => { this.ClickHandler(event); });
-            $(this.canvas).contextmenu(event => { this.ClickHandler(event); });
-        };
-        /**
-         * Handles click events.
-         */
-        this.ClickHandler = (event) => {
-            // Determine if left click or right click.
-            var leftClick;
-            if (!NotNullOrUndefined(event) || !NotNullOrUndefined(event.which)) {
-                console.warn("An undefined click event occured");
-                return;
-            }
-            if (event.which === 1 /* Left */) {
-                leftClick = true;
-            }
-            else if (event.which === 3 /* Right */) {
-                leftClick = false;
-            }
-            else {
-                // Ignore middle clicks and other.
-                return;
-            }
-            // Get click position.
-            if (!NotNullOrUndefined(event.pageX) ||
-                !NotNullOrUndefined(event.pageY)) {
-                console.warn("An undefined click event occured");
-                return;
-            }
-            var canvasOriginOnPage = new Point_1.Point(this.canvas.getBoundingClientRect().left, this.canvas.getBoundingClientRect().top);
-            var clickPositionOnPage = new Point_1.Point(event.pageX, event.pageY);
-            var clickPosition = clickPositionOnPage
-                .Subtract(canvasOriginOnPage);
-            console.log(`${leftClick ? "leftclick" : "rightclick"}\
-                    (${clickPosition.x}, ${clickPosition.y})`);
-            // TODO we have the relative point on the canvas, decide what to do with
-            // it.
-            var planets = [];
-            planets.push(new Planet_1.Planet(100, 100, 100, "A"));
-            planets.push(new Planet_1.Planet(200, 200, 150, "B"));
-            var clickAccepted = false;
-            planets.forEach(planet => {
-                if (!clickAccepted
-                    && planet.hitbox.GetIntersection(clickPosition)) {
-                    planet.OnClick(null);
-                    clickAccepted = true;
-                }
-                planet.Draw(this.context);
-            });
-        };
-        var element = document.getElementById(gameElementId);
-        this.canvas = element;
-        this.context = this.canvas.getContext("2d");
-    }
-}
-/**
- * Page ready function
- */
-$(() => {
-    // Create a new game object.
-    var game = new Game();
-    game.Initialize();
-});
-function NotNullOrUndefined(obj) {
-    if (typeof obj === "undefined")
-        return false;
-    if (obj == null)
-        return false;
-    return true;
-}
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Color_1 = __webpack_require__(3);
-const CircleHitbox_1 = __webpack_require__(4);
-const GraphicsAdapter_1 = __webpack_require__(5);
-const GameElement_1 = __webpack_require__(6);
-/**
- * Class for a single planet.
- */
-class Planet extends GameElement_1.GameElement {
-    constructor(x, y, radius = Planet.DEFAULT_RADIUS, name = "", color = new Color_1.Color(0, 0, 255)) {
-        super(new CircleHitbox_1.CircleHitbox(x, y, radius));
-        /**
-         * IClickable implementation.
-         * TODO make this actually do something.
-         */
-        this.OnClick = (event) => {
-            console.log(this.name);
-        };
-        /**
-         * IDrawable implementation.
-         */
-        this.Draw = (context) => {
-            console.log('drawing' + this.name);
-            GraphicsAdapter_1.GraphicsAdapter.FillStyle(context, this.color);
-            context.beginPath();
-            var hitBox = this.hitbox;
-            GraphicsAdapter_1.GraphicsAdapter.CirclePath(context, hitBox, hitBox.GetRadius());
-            context.fill();
-        };
-        this.name = name;
-        this.color = color;
-    }
-}
-Planet.DEFAULT_RADIUS = 100;
-exports.Planet = Planet;
-//# sourceMappingURL=Planet.js.map
-
-/***/ }),
-/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -301,7 +161,160 @@ class Color {
     }
 }
 exports.Color = Color;
-//# sourceMappingURL=Color.js.map
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Point_1 = __webpack_require__(0);
+const Planet_1 = __webpack_require__(3);
+const Color_1 = __webpack_require__(1);
+const $ = __webpack_require__(6);
+/**
+ * Enumeration for which state the game is in.
+ */
+var GameState;
+(function (GameState) {
+    GameState[GameState["MainMenu"] = 1] = "MainMenu";
+    GameState[GameState["MoveSelection"] = 2] = "MoveSelection";
+})(GameState || (GameState = {}));
+/**
+ * Main Game controller
+ */
+class Game {
+    constructor(gameElementId = "game") {
+        // Start the game
+        this.Initialize = () => {
+            $(this.canvas).click(event => { this.ClickHandler(event); });
+            $(this.canvas).contextmenu(event => { this.ClickHandler(event); });
+            // Testing
+            this.planets.push(new Planet_1.Planet(100, 100, 50, "planetA", new Color_1.Color(0, 0, 255)));
+            this.planets.push(new Planet_1.Planet(400, 400, 75, "planetB", new Color_1.Color(255, 0, 255)));
+        };
+        /**
+         * Handles click events.
+         */
+        this.ClickHandler = (event) => {
+            // Determine if left click or right click.
+            var leftClick;
+            if (!NotNullOrUndefined(event) || !NotNullOrUndefined(event.which)) {
+                console.warn("An undefined click event occured");
+                return;
+            }
+            if (event.which === 1 /* Left */) {
+                leftClick = true;
+            }
+            else if (event.which === 3 /* Right */) {
+                leftClick = false;
+            }
+            else {
+                // Ignore middle clicks and other.
+                return;
+            }
+            // Get click position.
+            if (!NotNullOrUndefined(event.pageX) ||
+                !NotNullOrUndefined(event.pageY)) {
+                console.warn("An undefined click event occured");
+                return;
+            }
+            var canvasOriginOnPage = new Point_1.Point(this.canvas.getBoundingClientRect().left, this.canvas.getBoundingClientRect().top);
+            var clickPositionOnPage = new Point_1.Point(event.pageX, event.pageY);
+            var clickPosition = clickPositionOnPage
+                .Subtract(canvasOriginOnPage);
+            console.log(`${leftClick ? "leftclick" : "rightclick"}\
+                    (${clickPosition.x}, ${clickPosition.y})`);
+            // TODO we have the relative point on the canvas, decide what to do with
+            // it.
+            var clickAccepted = false;
+            this.planets.forEach(planet => {
+                if (!clickAccepted
+                    && planet.GetIntersection(clickPosition)
+                    && planet.canClick) {
+                    planet.OnClick(null);
+                    clickAccepted = true;
+                }
+            });
+        };
+        /**
+         * Updates the canvas and draws all the onscreen elements.
+         */
+        this.UpdateCanvas = () => {
+            // Clear screen
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.planets.forEach(planet => {
+                planet.Draw(this.context);
+            });
+        };
+        var element = document.getElementById(gameElementId);
+        this.canvas = element;
+        this.context = this.canvas.getContext("2d");
+        this.planets = [];
+    }
+}
+/**
+ * Page ready function
+ */
+$(() => {
+    // Create a new game object.
+    var game = new Game();
+    game.Initialize();
+    // Set screen update to a timer for now.
+    setTimeout(game.UpdateCanvas, 16.6);
+});
+function NotNullOrUndefined(obj) {
+    if (typeof obj === "undefined")
+        return false;
+    if (obj == null)
+        return false;
+    return true;
+}
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Color_1 = __webpack_require__(1);
+const CircleHitbox_1 = __webpack_require__(4);
+const GraphicsAdapter_1 = __webpack_require__(5);
+/**
+ * Class for a single planet.
+ */
+class Planet extends CircleHitbox_1.CircleHitbox {
+    constructor(x, y, radius = Planet.DEFAULT_RADIUS, name = "", color = new Color_1.Color(0, 0, 255)) {
+        super(x, y, radius);
+        this.canClick = true;
+        /**
+         * IClickable implementation.
+         * TODO make this actually do something.
+         */
+        this.OnClick = (event) => {
+            console.log(this.name);
+        };
+        /**
+         * IDrawable implementation.
+         */
+        this.Draw = (context) => {
+            console.log('drawing' + this.name);
+            GraphicsAdapter_1.GraphicsAdapter.FillStyle(context, this.color);
+            context.beginPath();
+            GraphicsAdapter_1.GraphicsAdapter.CirclePath(context, this, this.GetRadius());
+            context.fill();
+        };
+        this.name = name;
+        this.color = color;
+    }
+}
+Planet.DEFAULT_RADIUS = 100;
+exports.Planet = Planet;
+
 
 /***/ }),
 /* 4 */
@@ -350,7 +363,7 @@ class CircleHitbox extends Point_1.Point {
     }
 }
 exports.CircleHitbox = CircleHitbox;
-//# sourceMappingURL=CircleHitbox.js.map
+
 
 /***/ }),
 /* 5 */
@@ -383,28 +396,10 @@ class GraphicsAdapter {
     }
 }
 exports.GraphicsAdapter = GraphicsAdapter;
-//# sourceMappingURL=GraphicsAdapter.js.map
+
 
 /***/ }),
 /* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * A single element on the screen.
- */
-class GameElement {
-    constructor(hitbox) {
-        this.hitbox = hitbox;
-    }
-}
-exports.GameElement = GameElement;
-//# sourceMappingURL=GameElement.js.map
-
-/***/ }),
-/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!

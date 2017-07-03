@@ -1,25 +1,25 @@
 import { Point } from "./Point";
-import { IClickable } from "./Interfaces";
-import { IDrawable } from "./Interfaces";
 import { Color } from "./Color";
 import { CircleHitbox } from "./CircleHitbox";
 import { GraphicsAdapter } from "./GraphicsAdapter";
-import { GameElement } from "./GameElement";
+import { GameObject } from "./GameObject";
 
 /**
  * Class for a single planet.
  */
-export class Planet extends GameElement implements IClickable, IDrawable {
+export class Planet extends CircleHitbox implements GameObject {
 
     static DEFAULT_RADIUS = 100;
 
     name: string;
     color: Color;
+    
+    canClick: boolean = true;
 
     constructor (x: number, y: number, radius: number = Planet.DEFAULT_RADIUS, 
             name: string = "", color: Color = new Color(0,0,255)) {
 
-        super(new CircleHitbox(x, y, radius));
+        super(x, y, radius);
 
         this.name = name;
 
@@ -46,10 +46,9 @@ export class Planet extends GameElement implements IClickable, IDrawable {
 
         context.beginPath();
 
-        var hitBox = this.hitbox as CircleHitbox;
-
-        GraphicsAdapter.CirclePath(context, hitBox, hitBox.GetRadius());
+        GraphicsAdapter.CirclePath(context, this, this.GetRadius());
 
         context.fill();
     }
+
 }

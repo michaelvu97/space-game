@@ -1,5 +1,5 @@
 import { Point } from "./Point";
-import { IIntersectable } from "./Interfaces";
+import { IIntersectable } from "./IIntersectable";
 
 /**
  * Circular hitbox.

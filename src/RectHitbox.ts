@@ -1,14 +1,12 @@
 import { Point } from "./Point";
-import { IIntersectable } from "./Interfaces";
-
-
+import { IIntersectable } from "./IIntersectable";
 
 /**
  * A class representing a rectangular hitbox.
  * The extension from a point is the centre of the hitbox (ie. (x,y) is the 
  * centre).
  */
-export class Hitbox extends Point implements IIntersectable {
+export class RectHitbox extends Point implements IIntersectable {
 
     private _width:  number;
     private _height: number;
