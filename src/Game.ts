@@ -2,6 +2,8 @@ import { Point } from "./Point";
 import { Planet } from "./Planet";
 import { Color } from "./Color";
 import { GameObject } from "./GameObject"
+import { Player } from "./Player";
+import { PlanetController } from "./PlanetController";
 import * as $ from "jquery";
 
 /**
@@ -15,12 +17,12 @@ enum GameState {
 /** 
  * Main Game controller
  */
-class Game {
+export class Game {
 
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
 
-    planets: Array<GameObject>;
+    planetController: PlanetController;
 
     constructor (gameElementId = "game") {
         
@@ -28,7 +30,7 @@ class Game {
         this.canvas = element as HTMLCanvasElement;
         this.context = this.canvas.getContext("2d");
 
-        this.planets = [];
+        this.planetController = new PlanetController();
 
     }
 
@@ -39,11 +41,11 @@ class Game {
 
 
         // Testing
-        this.planets.push(new Planet(100, 100, 50, "planetA", 
+        this.planetController.Add(new Planet(100, 100, 50, "planetA", 
                 new Color(0,0,255))
         );
 
-        this.planets.push(new Planet(400, 400, 75, "planetB",
+        this.planetController.Add(new Planet(400, 400, 75, "planetB",
                 new Color(255,0,255))
         );
 
@@ -100,7 +102,7 @@ class Game {
                     && planet.GetIntersection(clickPosition)
                     && planet.canClick) {
 
-                planet.OnClick(null);
+                planet.OnClick(null, this);
                 clickAccepted = true;
 
             }

@@ -3,6 +3,9 @@ import { Color } from "./Color";
 import { CircleHitbox } from "./CircleHitbox";
 import { GraphicsAdapter } from "./GraphicsAdapter";
 import { GameObject } from "./GameObject";
+import { PlanetController } from "./PlanetController";
+import { Player } from "./Player";
+
 
 /**
  * Class for a single planet.
@@ -15,6 +18,17 @@ export class Planet extends CircleHitbox implements GameObject {
     color: Color;
     
     canClick: boolean = true;
+
+    /**
+     * Context for the planet.
+     */
+    controller: PlanetController = null;
+
+    /**
+     * Controlling player's id.
+     * Negative for uncontrolled.
+     */
+    controlledById: number = Player.NO_PLAYER_ID;
 
     constructor (x: number, y: number, radius: number = Planet.DEFAULT_RADIUS, 
             name: string = "", color: Color = new Color(0,0,255)) {
@@ -31,8 +45,11 @@ export class Planet extends CircleHitbox implements GameObject {
      * IClickable implementation.
      * TODO make this actually do something.
      */
-    OnClick = (event: Event):void => {
+    OnClick = (event: Event): void => {
         console.log(this.name);
+
+        // Select a second planet.
+
     }
 
     /** 
